@@ -4,6 +4,9 @@ import numpy as np
 import env
 import os
 
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
+
 def get_zillow(force_new=False):
     '''
     This function acquires the requisite zillow data from the Codeup SQL database and caches it locally it for future use in a csv 
@@ -240,8 +243,10 @@ def clean_zillow(df):
     '''
     This function takes in an uncleaned zillow dataframe and peforms various cleaning functions. It returns a cleaned zillow dataframe.
     '''
+   # Dropping undesired columns due to nulls
     df = drop_undesired(df)
-    # Gettring rid of unwanted columns
+    
+    # Getting rid of unwanted columns
     df = drop_remaining(df)
 
     # Getting rid of invalid, wrong, or incorrectly entered data
@@ -266,3 +271,61 @@ def clean_zillow(df):
 
     return df
 
+def split_zillow(df):
+    '''
+    Takes in a cleaned zillow dataframe, splits it into train, validate and test subgroups and then returns those subgroups.
+    
+    Arguments: df - a cleaned pandas dataframe with the expected feature names and columns in the zillow dataset
+    Return: train, validate, test - dataframes ready for the exploration and model phases.
+    '''
+    train, test = train_test_split(df, train_size = 0.8, random_state = 1234)
+    train, validate = train_test_split(train, train_size = 0.7, random_state = 1234)
+    return train, validate, test
+
+def data_scaler(train, validate, test, columns_to_scale):
+    '''
+    This function takes in train, validate, test subsets of the cleaned zillow dataset and using the train subset creates a min_max 
+    scaler. It thens scales the subsets and returns the train, validate, test subsets as scaled versions of the initial data.
+
+    Arguments:  train, validate, test - split subsets from of the cleaned zillow dataframe
+                columns_to_scale - a list of column names to scale
+    Return: scaled_train, scaled_validate, scaled_test - dataframe with scaled versions of the initial unscaled dataframes 
+    '''
+    train_scaled = train.copy()
+    validate_scaled = validate.copy()
+    test_scaled = test.copy()
+    
+    scaler = MinMaxScaler()
+    
+    train_scaled[columns_to_scale] = pd.DataFrame(scaler.fit_transform(train[columns_to_scale]), 
+                                                  columns=train[columns_to_scale].columns.values).set_index([train.index.values])
+
+    validate_scaled[columns_to_scale] = pd.DataFrame(scaler.transform(validate[columns_to_scale]),
+                                                  columns=validate[columns_to_scale].columns.values).set_index([validate.index.values])
+    
+    test_scaled[columns_to_scale] = pd.DataFrame(scaler.transform(test[columns_to_scale]),
+                                                 columns=test[columns_to_scale].columns.values).set_index([test.index.values])
+
+    return train_scaled, validate_scaled, test_scaled
+
+def prepare_all_data(df, columns_to_scale):
+    '''
+    This function takes in a cleaned and prepared zillow dataframe. It then performs a train, validate, test split on the dataframe.
+    Following it also makes scaled copies of the train, validate, test splits. Finally it returns the train subset to be used in EDA, 
+    as well as validate and test even though these will probably not be used since modeling should be done on scaled data; additionally 
+    it returns the train_scaled, validate_scaled, test_scaled subsets for modeling use.
+
+    Arguments:  df - a cleaned, and prepared zillow dataframe
+                columns_to_scale - a list of columns whose data should be scaled for modeling
+
+    Returns:    train - a subset of the zillow dataframe to be used for Exploratory Data Analysis
+                validate - a subset of the zillow dataframe (probably will not be used)
+                test -  a subset of the zillow dataframe (probably will not be used)
+                train_scaled - a subset of the zillow dataframe to be used for training an ML model
+                validate_scaled - a subset of the zillow dataframe to be used for validation of an ML model 
+                test_scaled - a subset of the zillow dataframe to be used for final testing of final ML model
+    '''
+    train, validate, test = split_zillow(df)
+    train_scaled, validate_scaled, test_scaled = data_scaler(train, validate, test, columns_to_scale)
+
+    return train, validate, test, train_scaled, validate_scaled, test_scaled
