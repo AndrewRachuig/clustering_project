@@ -220,7 +220,8 @@ def drop_remaining(df):
     """
     This function takes in a zillow dataframe and drops unwanted columns / rows due to nulls. It returns a dataframe with nulls removed
     """
-    df.drop(columns = ['finishedsquarefeet12','regionidcounty','regionidcity','censustractandblock','parcelid','propertylandusedesc','assessmentyear', 'propertylandusetypeid'], inplace=True)
+    df.drop(columns = ['rawcensustractandblock','rawcensustractandblock','roomcnt','finishedsquarefeet12','regionidcounty','regionidcity','censustractandblock','parcelid',
+        'propertylandusedesc','assessmentyear', 'propertylandusetypeid','calculatedbathnbr','fullbathcnt'], inplace=True)
     df = df[df.lotsizesquarefeet.notnull()]
     df = df[df.yearbuilt.notnull() & df.taxamount.notnull() & df.structuretaxvaluedollarcnt.notnull()]
     df = df[df.regionidzip.notnull()]
@@ -232,11 +233,10 @@ def convert_dtypes(df):
     This function takes in a zillow dataframe and changes the datatype for specific columsn to save on memory. It returns the modified dataframe.
     '''
     df.bedroomcnt = df.bedroomcnt.astype('uint8')
-    df.roomcnt = df.roomcnt.astype('uint8')
     df.bathroomcnt = df.bathroomcnt.astype('float16')
-    df.calculatedbathnbr = df.calculatedbathnbr.astype('float16')
     df.yearbuilt = df.yearbuilt.astype('uint16')
     df.calculatedfinishedsquarefeet = df.calculatedfinishedsquarefeet.astype('uint16')
+    df['transactiondate'] = pd.to_datetime(df.transactiondate)
     return df
 
 def clean_zillow(df):
@@ -261,13 +261,17 @@ def clean_zillow(df):
     # Changing datatypes for selected columns to improve efficiency
     df = convert_dtypes(df)
 
-    # Running the not_outlier function to get rid of outliers with a z score of greater than 5.5. 
+    # Running the not_outlier function to get rid of outliers with a modified z score of greater than a set threshhold. 
     # Keeps the vast majority of data and makes it more applicable.
     df = df[not_outlier(df.taxvaluedollarcnt, thresh=4.5)]
     df = df[not_outlier(df.calculatedfinishedsquarefeet, thresh=5)]
     df = df[not_outlier(df.lotsizesquarefeet, thresh=4)]
     df = df[not_outlier(df.bathroomcnt, thresh=4)]
     df = df[not_outlier(df.bedroomcnt, thresh=4)]
+    df = df[not_outlier(df.logerror, thresh = 4)]
+
+    df.rename(columns={"bathroomcnt": "bathrooms", "bedroomcnt": "bedrooms", "taxvaluedollarcnt": "tax_value", "calculatedfinishedsquarefeet": "square_footage",
+        "lotsizesquarefeet": "lot_size", "structuretaxvaluedollarcnt": "structure_tax_value", "landtaxvaluedollarcnt": "land_tax_value"}, inplace=True)
 
     return df
 
