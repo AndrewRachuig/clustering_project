@@ -221,10 +221,9 @@ def drop_remaining(df):
     This function takes in a zillow dataframe and drops unwanted columns / rows due to nulls. It returns a dataframe with nulls removed
     """
     df.drop(columns = ['rawcensustractandblock','rawcensustractandblock','roomcnt','finishedsquarefeet12','regionidcounty','regionidcity','censustractandblock','parcelid',
-        'propertylandusedesc','assessmentyear', 'propertylandusetypeid','calculatedbathnbr','fullbathcnt'], inplace=True)
+        'propertylandusedesc','assessmentyear', 'propertylandusetypeid','propertycountylandusecode','calculatedbathnbr','fullbathcnt','regionidzip'], inplace=True)
     df = df[df.lotsizesquarefeet.notnull()]
     df = df[df.yearbuilt.notnull() & df.taxamount.notnull() & df.structuretaxvaluedollarcnt.notnull()]
-    df = df[df.regionidzip.notnull()]
 
     return df
 
