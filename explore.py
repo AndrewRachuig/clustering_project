@@ -11,6 +11,7 @@ from sklearn.preprocessing import MinMaxScaler
 import scipy.stats as stats
 
 from itertools import combinations
+import random
 
 # ignore warnings
 import warnings
@@ -224,3 +225,57 @@ def add_new_columns(df):
     
     df = add_cluster_features(df)
     return df
+
+def cluster_finder(df, target_variable = None, clusters_val = 3, num_features= 3, range_val = 100):
+    '''
+    This function takes in a dataframe with multiple features and iteratively runs a KMeans clustering algorithm
+    by randomly pairing features together. It has a few settings to allow you to tweak hyperparameters of the KMeans
+    algorithm. If it finds any specific cluster that has a mean that is above or below a specified target variable's standard 
+    devation it will plot out a kdeplot showing the cluster grouping and values. At the end, it prints the max and min 
+    performing feature grouping which is where the single lowest or highest cluster was found.
+
+    Parameters: df - a dataframe with multiple features ready to find clusters
+                target_variable - the target variable being looked at to compare means of the new clusters
+                clusters_val - the number of clusters the algorithm is making
+                num_features - the number of features from the dataframe to use to look for clusters from the dataframe. 
+                                The specific features are selected at random from the dataframe.
+                range_val - the number of random feature combinations used to look for groupings.
+    '''
+
+    max = 0
+    min = 10
+    max_columns = []
+    min_columns = []
+    stddev = np.std(df[target_variable])
+    target_mean = df[target_variable].mean()
+
+    for i in range (0,range_val):
+        columns = random.sample(df.select_dtypes('number').columns.drop([target_variable]).tolist(), num_features)
+        X = df[columns]
+        kmeans = KMeans(n_clusters=clusters_val)
+        kmeans.fit(X)
+        df['first_cluster'] = kmeans.predict(X)
+        temp_mean_total = 0
+
+
+        for cluster in df['first_cluster'].unique():
+            cluster_mean = df[df.first_cluster == cluster][target_variable].mean()
+            if (cluster_mean > (target_mean + stddev))  or (cluster_mean < (target_mean - stddev)):
+                print(f"Kde plot with clustering for {columns}")
+                sns.kdeplot(data = df, x = target_variable, hue =train_scaled.first_cluster)
+                plt.axvline(target_mean)
+                plt.axvline((target_mean + stddev), ls='--')
+                plt.axvline((target_mean + stddev), ls = '--')
+                plt.show()
+                print(i, 'part 3 done')
+                break
+
+        if cluster_mean > max:
+            max = cluster_mean
+            max_columns = columns
+        elif cluster_mean < min:
+            min = cluster_mean
+            min_columns = columns
+        print(i)
+    print(f"The maximum performing column group was {max_columns} \nwith a single cluster mean of {max}\n")
+    print(f"The minimum performing column group was {min_columns} \nwith a single cluster mean of {min}")
