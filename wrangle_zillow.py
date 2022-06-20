@@ -218,7 +218,7 @@ def not_outlier(df_column, thresh=3.5):
 
 def drop_remaining(df):
     """
-    This function takes in a zillow dataframe and drops unwanted columns / rows due to nulls. It returns a dataframe with nulls removed
+    This function takes in a zillow dataframe and drops unwanted columns / rows due to nulls or invalid data. It returns a dataframe with these columns removed.
     """
     df.drop(columns = ['rawcensustractandblock','rawcensustractandblock','roomcnt','finishedsquarefeet12','regionidcounty','regionidcity','censustractandblock','parcelid',
         'propertylandusedesc','assessmentyear', 'propertylandusetypeid','propertycountylandusecode','calculatedbathnbr','fullbathcnt','regionidzip'], inplace=True)
@@ -242,9 +242,9 @@ def clean_zillow(df):
     '''
     This function takes in an uncleaned zillow dataframe and peforms various cleaning functions. It returns a cleaned zillow dataframe.
     '''
-   # Dropping undesired columns due to nulls
+    # Dropping undesired columns due to nulls
     df = drop_undesired(df)
-    
+
     # Getting rid of unwanted columns
     df = drop_remaining(df)
 
