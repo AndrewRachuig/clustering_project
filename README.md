@@ -1,4 +1,4 @@
-# <center>Predicting Tax Value of Homes using Zillow Data </center>
+# <center>Predicting Logerror of the Zestimate </center>
 
 <img src="img/zillow_cluster.jpg" width=800 height=800 />
 
