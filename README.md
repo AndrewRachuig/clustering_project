@@ -146,7 +146,7 @@ The following are features I used in my final model.
 #### Plan &rarr; Acquire &rarr; Prepare &rarr; Explore &rarr; Model
 - Do any final pre-modeling data prep (drop/combine columns) as determined most beneficial from the end of the Explore phase
 - Find and establish baseline RSME base on Mean and Median values of the train subset. This will give me an RSME level to beat with my models
-- Create at least four separate regression models to predicate tax value of homes.
+- Create at least four separate models to predict logerror of the zestimate.
     - Given time attempt other models.
 - For all models made, compare RSME results from train to validate
     - Look for hyperparamters that will give better results.
