@@ -1,6 +1,6 @@
-# <center>Predicting Logerror of the Zestimate </center>
+# <center>Using Clustering to Predict Logerror of the Zestimate</center>
 
-<img src="img/zillow_cluster.jpg" width=800 height=800 />
+<img src="img/zillow_cluster.jpg" width=800 height=600 />
 
 ## Project Summary
 
