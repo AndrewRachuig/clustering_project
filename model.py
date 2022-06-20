@@ -401,6 +401,7 @@ def comparison_plot(model_results, X_train, X_validate, X_test, y_train, y_valid
 
 def final_model_test(y_test, test_scaled):
     y_test = y_test.drop(y_test.logerror_pred_lm2_ver2.idxmax())
+    y_test = y_test.drop(y_test.logerror_pred_lm2_ver2.idxmin())
     rmse_aggregate_test = mean_squared_error(y_test.logerror, y_test.logerror_pred_lm2_ver2)**(1/2)
 
     # This is just to predict the RMSE on validate for LA county
@@ -420,6 +421,7 @@ def final_model_test(y_test, test_scaled):
 def final_comparison_plot(model_results, X_train, X_validate, X_test, y_train, y_validate, y_test, validate_scaled, y_validate_la, y_validate_orange, y_validate_ventura, rmse_aggregate_test, la_only_test_RMSE, orange_only_test_RMSE, ventura_only_test_RMSE):
     # la_only_validate_RMSE, orange_only_validate_RMSE, ventura_only_validate_RMSE, y_test = poly_regressor_model(X_train, X_validate, X_test, y_train, y_validate, validate_scaled, y_test)
     y_test = y_test.drop(y_test.logerror_pred_lm2_ver2.idxmax())
+    y_test = y_test.drop(y_test.logerror_pred_lm2_ver2.idxmin())
     aggregate_model_validation = model_results[model_results.model == 'polynomial_regression'].validate_RMSE.values[0]
     mean_model_validation = model_results[model_results.model == 'train_mean'].validate_RMSE.values[0]
     la_model_validation = mean_squared_error(y_validate_la.logerror, y_validate_la.logerror_pred_lm2)**(1/2)
@@ -428,10 +430,11 @@ def final_comparison_plot(model_results, X_train, X_validate, X_test, y_train, y
 
     plt.figure(figsize=(13,11))
     g = sns.barplot(x = ['Mean Baseline', 'Aggregate Regressor Model', 'Los Angeles Model', 'Orange Model', 'Ventura Model'], 
-                y = [mean_model_validation, aggregate_model_validation, la_model_validation, orange_model_validation, ventura_model_validation], palette='flare')
+            y = [mean_model_validation, aggregate_model_validation, la_model_validation, orange_model_validation, ventura_model_validation], palette='flare', )
 
     g= sns.barplot(x = ['Mean Baseline', 'Aggregate Poly-Regressor Model', 'LA', 'Orange', 'Ventura'], 
-                y = [0, rmse_aggregate_test, la_only_test_RMSE, orange_only_test_RMSE, ventura_only_test_RMSE], palette='viridis', alpha =.45)
+                y = [0, rmse_aggregate_test, la_only_test_RMSE, orange_only_test_RMSE, ventura_only_test_RMSE], 
+                palette='viridis', alpha =.45, ls = '-', linewidth = 2, edgecolor='black')
     g.set(ylim=(.0425,.06))
 
     plt.title('Aggregate Model Validate vs Individual Models Validate vs Aggregate Model Test',size = 'x-large')
