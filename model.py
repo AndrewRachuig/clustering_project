@@ -334,6 +334,11 @@ def validate_results_plot(model_results, y_validate_la, y_validate_orange, y_val
 
 
 def poly_regressor_model(X_train, X_validate, X_test, y_train, y_validate, validate_scaled, y_test):
+    '''
+    This function takes in all of my X y splits in plus the overall validate_scaled dataset to run a polynomial regression model. It
+    then prints returns the RMSE for the model for each county split plus the y_test dataframe with the predictions for the model
+    added into a new column called "logerror_pred_lm2_ver2".
+    '''
         # making the polynomial features to get a new set of features
     pf = PolynomialFeatures(degree=2, )
 
@@ -376,6 +381,11 @@ def poly_regressor_model(X_train, X_validate, X_test, y_train, y_validate, valid
     return la_only_validate_RMSE, orange_only_validate_RMSE, ventura_only_validate_RMSE, y_test
 
 def comparison_plot(model_results, X_train, X_validate, X_test, y_train, y_validate, y_test, validate_scaled, y_validate_la, y_validate_orange, y_validate_ventura, ):
+    '''
+    This takes in all model results and plots the baseline mean RMSE, the aggregate model RMSE, and the RMSE results for each individually 
+    created model for each county compared to the RMSE for each county from the single aggregate model.
+    '''
+    
     la_only_validate_RMSE, orange_only_validate_RMSE, ventura_only_validate_RMSE, y_test = poly_regressor_model(X_train, X_validate, X_test, y_train, y_validate, validate_scaled, y_test)
 
     aggregate_model_validation = model_results[model_results.model == 'polynomial_regression'].validate_RMSE.values[0]
@@ -400,6 +410,11 @@ def comparison_plot(model_results, X_train, X_validate, X_test, y_train, y_valid
     return y_test
 
 def final_model_test(y_test, test_scaled):
+    '''
+    This function takes in the y_test and test_scaled dataframes and computes the RMSE values for out of sample/test data using the final
+    polynomial regression model. It then prints out the aggregate RMSE as well as the RMSE results for each county when using the single
+    aggregate final model.
+    '''
     y_test = y_test.drop(y_test.logerror_pred_lm2_ver2.idxmax())
     y_test = y_test.drop(y_test.logerror_pred_lm2_ver2.idxmin())
     rmse_aggregate_test = mean_squared_error(y_test.logerror, y_test.logerror_pred_lm2_ver2)**(1/2)
@@ -419,6 +434,12 @@ def final_model_test(y_test, test_scaled):
     return rmse_aggregate_test, la_only_test_RMSE, orange_only_test_RMSE, ventura_only_test_RMSE
 
 def final_comparison_plot(model_results, X_train, X_validate, X_test, y_train, y_validate, y_test, validate_scaled, y_validate_la, y_validate_orange, y_validate_ventura, rmse_aggregate_test, la_only_test_RMSE, orange_only_test_RMSE, ventura_only_test_RMSE):
+    '''
+    This fucntion takes in models and results of models to make a final comparison plot of the RMSE for the validate vs test results
+    on the final model. It includes individual results for the baseline RMSE, the aggregate model RMSE, and the RMSE for individual 
+    counties from the single final model.
+
+    '''
     # la_only_validate_RMSE, orange_only_validate_RMSE, ventura_only_validate_RMSE, y_test = poly_regressor_model(X_train, X_validate, X_test, y_train, y_validate, validate_scaled, y_test)
     y_test = y_test.drop(y_test.logerror_pred_lm2_ver2.idxmax())
     y_test = y_test.drop(y_test.logerror_pred_lm2_ver2.idxmin())
